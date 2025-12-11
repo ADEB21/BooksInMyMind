@@ -23,10 +23,10 @@ export default async function DashboardPage() {
 
   const stats = {
     total: books.length,
-    read: books.filter((b) => b.endDate).length,
-    reading: books.filter((b) => b.startDate && !b.endDate).length,
+    read: books.filter((b: typeof books[0]) => b.endDate).length,
+    reading: books.filter((b: typeof books[0]) => b.startDate && !b.endDate).length,
     avgRating: books.length > 0 
-      ? (books.reduce((acc, b) => acc + (b.rating || 0), 0) / books.filter((b) => b.rating).length).toFixed(1)
+      ? (books.reduce((acc: number, b: typeof books[0]) => acc + (b.rating || 0), 0) / books.filter((b: typeof books[0]) => b.rating).length).toFixed(1)
       : '0',
   }
 
@@ -81,7 +81,7 @@ export default async function DashboardPage() {
             <Button size="lg">
               <Icon name="plus" size={20} />
               Ajouter un livre
-            </Button>
+            </Button> 
           </Link>
         </div>
 
