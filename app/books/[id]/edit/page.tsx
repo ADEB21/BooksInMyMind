@@ -4,6 +4,11 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { use } from 'react'
+import Button from '@/components/atoms/Button'
+import Input from '@/components/atoms/Input'
+import Card from '@/components/atoms/Card'
+import Icon from '@/components/atoms/Icon'
+import Textarea from '@/components/atoms/Textarea'
 
 export default function EditBookPage({
   params,
@@ -101,98 +106,84 @@ export default function EditBookPage({
 
   if (fetching) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-[#FAF6F0] flex items-center justify-center">
         <div className="text-center">
-          <div className="text-4xl mb-4">📚</div>
-          <p className="text-gray-600">Chargement...</p>
+          <div className="text-6xl mb-4">📚</div>
+          <p className="text-gray-600 text-lg">Chargement...</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[#FAF6F0]">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 py-4">
+      <header className="bg-white/80 backdrop-blur-lg border-b border-[#232946]/5 sticky top-0 z-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center gap-4">
-            <Link href={`/books/${id}`} className="text-gray-600 hover:text-gray-900">
-              ← Retour
+            <Link href={`/books/${id}`} className="flex items-center gap-2 text-gray-600 hover:text-[#232946] transition-colors">
+              <Icon name="book" size={20} />
+              <span className="font-medium">Retour au livre</span>
             </Link>
-            <h1 className="text-xl font-bold text-gray-900">Modifier le livre</h1>
           </div>
         </div>
       </header>
 
-      <main className="max-w-3xl mx-auto px-4 py-8">
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
+      <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold text-[#232946] mb-2">Modifier le livre</h1>
+          <p className="text-gray-600">Mettez à jour les informations de votre livre</p>
+        </div>
+
+        <Card padding="lg">
           {error && (
             <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg">
               {error}
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Title */}
-            <div>
-              <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
-                Titre <span className="text-red-500">*</span>
-              </label>
-              <input
-                id="title"
-                name="title"
-                type="text"
-                value={formData.title}
-                onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition"
-                required
-                disabled={loading}
-              />
-            </div>
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <Input
+              label="Titre"
+              name="title"
+              type="text"
+              value={formData.title}
+              onChange={handleChange}
+              placeholder="Le Seigneur des Anneaux"
+              required
+              disabled={loading}
+            />
 
-            {/* Author */}
-            <div>
-              <label htmlFor="author" className="block text-sm font-medium text-gray-700 mb-2">
-                Auteur
-              </label>
-              <input
-                id="author"
-                name="author"
-                type="text"
-                value={formData.author}
-                onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition"
-                disabled={loading}
-              />
-            </div>
+            <Input
+              label="Auteur"
+              name="author"
+              type="text"
+              value={formData.author}
+              onChange={handleChange}
+              placeholder="J.R.R. Tolkien"
+              disabled={loading}
+            />
 
-            {/* Cover URL */}
-            <div>
-              <label htmlFor="coverUrl" className="block text-sm font-medium text-gray-700 mb-2">
-                URL de la couverture
-              </label>
-              <input
-                id="coverUrl"
-                name="coverUrl"
-                type="url"
-                value={formData.coverUrl}
-                onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition"
-                disabled={loading}
-              />
-            </div>
+            <Input
+              label="URL de la couverture"
+              name="coverUrl"
+              type="url"
+              value={formData.coverUrl}
+              onChange={handleChange}
+              placeholder="https://example.com/cover.jpg"
+              helperText="Lien vers l'image de couverture du livre"
+              disabled={loading}
+            />
 
-            {/* Rating */}
             <div>
-              <label htmlFor="rating" className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-[#1A1A1A] mb-2">
                 Note
               </label>
               <select
-                id="rating"
                 name="rating"
                 value={formData.rating}
                 onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition"
+                className="w-full px-4 py-3 bg-white border border-[#232946]/10 rounded-xl text-[#1A1A1A] focus:outline-none focus:ring-2 focus:ring-[#C1A15B] focus:border-transparent transition-all duration-200"
                 disabled={loading}
               >
                 <option value="">Sélectionner une note</option>
@@ -204,73 +195,59 @@ export default function EditBookPage({
               </select>
             </div>
 
-            {/* Comment */}
-            <div>
-              <label htmlFor="comment" className="block text-sm font-medium text-gray-700 mb-2">
-                Commentaire
-              </label>
-              <textarea
-                id="comment"
-                name="comment"
-                value={formData.comment}
+            <Textarea
+              label="Vos pensées"
+              name="comment"
+              value={formData.comment}
+              onChange={handleChange}
+              rows={5}
+              placeholder="Qu'avez-vous pensé de ce livre ? Partagez vos impressions..."
+              disabled={loading}
+            />
+
+            <div className="grid md:grid-cols-2 gap-5">
+              <Input
+                label="Date de début"
+                name="startDate"
+                type="date"
+                value={formData.startDate}
                 onChange={handleChange}
-                rows={4}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition resize-none"
+                disabled={loading}
+              />
+
+              <Input
+                label="Date de fin"
+                name="endDate"
+                type="date"
+                value={formData.endDate}
+                onChange={handleChange}
                 disabled={loading}
               />
             </div>
 
-            {/* Dates */}
-            <div className="grid md:grid-cols-2 gap-6">
-              <div>
-                <label htmlFor="startDate" className="block text-sm font-medium text-gray-700 mb-2">
-                  Date de début
-                </label>
-                <input
-                  id="startDate"
-                  name="startDate"
-                  type="date"
-                  value={formData.startDate}
-                  onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition"
-                  disabled={loading}
-                />
-              </div>
-
-              <div>
-                <label htmlFor="endDate" className="block text-sm font-medium text-gray-700 mb-2">
-                  Date de fin
-                </label>
-                <input
-                  id="endDate"
-                  name="endDate"
-                  type="date"
-                  value={formData.endDate}
-                  onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition"
-                  disabled={loading}
-                />
-              </div>
-            </div>
-
-            {/* Buttons */}
-            <div className="flex gap-4 pt-4">
-              <button
+            <div className="flex flex-col sm:flex-row gap-4 pt-6">
+              <Button
                 type="submit"
                 disabled={loading}
-                className="flex-1 bg-indigo-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-indigo-700 focus:ring-4 focus:ring-indigo-200 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                fullWidth
+                size="lg"
               >
-                {loading ? 'Modification en cours...' : 'Enregistrer les modifications'}
-              </button>
-              <Link
-                href={`/books/${id}`}
-                className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition text-center"
-              >
-                Annuler
+                <Icon name="edit" size={20} />
+                {loading ? 'Modification...' : 'Enregistrer les modifications'}
+              </Button>
+              <Link href={`/books/${id}`} className="sm:w-auto">
+                <Button
+                  type="button"
+                  variant="secondary"
+                  fullWidth
+                  size="lg"
+                >
+                  Annuler
+                </Button>
               </Link>
             </div>
           </form>
-        </div>
+        </Card>
       </main>
     </div>
   )
