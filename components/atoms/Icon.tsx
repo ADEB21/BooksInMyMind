@@ -1,3 +1,5 @@
+import { ReactElement } from 'react'
+
 interface IconProps {
   name: string
   size?: number
@@ -6,7 +8,7 @@ interface IconProps {
 
 export default function Icon({ name, size = 24, className = '' }: IconProps) {
   // Icons SVG - style minimaliste et élégant
-  const icons: Record<string, JSX.Element> = {
+  const icons: Record<string, ReactElement> = {
     book: (
       <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
         <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
