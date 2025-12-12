@@ -1,40 +1,51 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
-import Link from 'next/link'
-import Button from '@/components/atoms/Button'
-import Input from '@/components/atoms/Input'
-import Card from '@/components/atoms/Card'
-import Icon from '@/components/atoms/Icon'
-import Textarea from '@/components/atoms/Textarea'
+import { useState } from "react";
+import { redirect, useRouter } from "next/navigation";
+import Link from "next/link";
+import Button from "@/components/atoms/Button";
+import Input from "@/components/atoms/Input";
+import Card from "@/components/atoms/Card";
+import Icon from "@/components/atoms/Icon";
+import Textarea from "@/components/atoms/Textarea";
+import { auth } from "@/auth";
 
-export default function NewBookPage() {
-  const router = useRouter()
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
+export default async function NewBookPage() {
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const [formData, setFormData] = useState({
-    title: '',
-    author: '',
-    coverUrl: '',
-    rating: '',
-    comment: '',
-    startDate: '',
-    endDate: '',
-  })
+    title: "",
+    author: "",
+    coverUrl: "",
+    rating: "",
+    comment: "",
+    startDate: "",
+    endDate: "",
+  });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const session = await auth();
+
+  if (!session?.user) {
+    redirect("/login");
+  }
+
+  const handleChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
+  ) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
-    })
-  }
+    });
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError('')
-    setLoading(true)
+    e.preventDefault();
+    setError("");
+    setLoading(true);
 
     try {
       const payload = {
@@ -43,30 +54,34 @@ export default function NewBookPage() {
         ...(formData.coverUrl && { coverUrl: formData.coverUrl }),
         ...(formData.rating && { rating: parseInt(formData.rating) }),
         ...(formData.comment && { comment: formData.comment }),
-        ...(formData.startDate && { startDate: new Date(formData.startDate).toISOString() }),
-        ...(formData.endDate && { endDate: new Date(formData.endDate).toISOString() }),
-      }
+        ...(formData.startDate && {
+          startDate: new Date(formData.startDate).toISOString(),
+        }),
+        ...(formData.endDate && {
+          endDate: new Date(formData.endDate).toISOString(),
+        }),
+      };
 
-      const response = await fetch('/api/books', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/books", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
-      })
+      });
 
-      const data = await response.json()
+      const data = await response.json();
 
       if (!response.ok) {
-        setError(data.error || 'Erreur lors de l\'ajout du livre')
+        setError(data.error || "Erreur lors de l'ajout du livre");
       } else {
-        router.push('/dashboard')
-        router.refresh()
+        router.push("/dashboard");
+        router.refresh();
       }
     } catch (err) {
-      setError('Une erreur est survenue')
+      setError("Une erreur est survenue");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <div className="min-h-screen bg-[#FAF6F0]">
@@ -74,7 +89,10 @@ export default function NewBookPage() {
       <header className="bg-white/80 backdrop-blur-lg border-b border-[#232946]/5 sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center gap-4">
-            <Link href="/dashboard" className="flex items-center gap-2 text-gray-600 hover:text-[#232946] transition-colors">
+            <Link
+              href="/dashboard"
+              className="flex items-center gap-2 text-gray-600 hover:text-[#232946] transition-colors"
+            >
               <Icon name="book" size={20} />
               <span className="font-medium">Retour au dashboard</span>
             </Link>
@@ -84,8 +102,12 @@ export default function NewBookPage() {
 
       <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-[#232946] mb-2">Ajouter un livre</h1>
-          <p className="text-gray-600">Enrichissez votre bibliothèque personnelle</p>
+          <h1 className="text-4xl font-bold text-[#232946] mb-2">
+            Ajouter un livre
+          </h1>
+          <p className="text-gray-600">
+            Enrichissez votre bibliothèque personnelle
+          </p>
         </div>
 
         <Card padding="lg">
@@ -179,22 +201,12 @@ export default function NewBookPage() {
             </div>
 
             <div className="flex flex-col sm:flex-row gap-4 pt-6">
-              <Button
-                type="submit"
-                disabled={loading}
-                fullWidth
-                size="lg"
-              >
+              <Button type="submit" disabled={loading} fullWidth size="lg">
                 <Icon name="plus" size={20} />
-                {loading ? 'Ajout en cours...' : 'Ajouter le livre'}
+                {loading ? "Ajout en cours..." : "Ajouter le livre"}
               </Button>
               <Link href="/dashboard" className="sm:w-auto">
-                <Button
-                  type="button"
-                  variant="secondary"
-                  fullWidth
-                  size="lg"
-                >
+                <Button type="button" variant="secondary" fullWidth size="lg">
                   Annuler
                 </Button>
               </Link>
@@ -203,5 +215,5 @@ export default function NewBookPage() {
         </Card>
       </main>
     </div>
-  )
+  );
 }
