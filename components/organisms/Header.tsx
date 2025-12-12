@@ -1,7 +1,9 @@
+'use client'
+
 import Link from 'next/link'
 import Icon from '../atoms/Icon'
 import Button from '../atoms/Button'
-import { signOut } from '@/auth'
+import { handleSignOut } from '@/lib/actions'
 
 interface HeaderProps {
   userName?: string
@@ -27,6 +29,13 @@ export default function Header({ userName, isAuthenticated }: HeaderProps) {
           {isAuthenticated && (
             <nav className="hidden md:flex items-center gap-6">
               <Link 
+                href="/books" 
+                className="flex items-center gap-2 text-[#232946] hover:text-[#C1A15B] transition-colors"
+              >
+                <Icon name="book" size={18} />
+                <span className="text-sm font-medium">Livres</span>
+              </Link>
+              <Link 
                 href="/dashboard" 
                 className="flex items-center gap-2 text-[#232946] hover:text-[#C1A15B] transition-colors"
               >
@@ -50,10 +59,7 @@ export default function Header({ userName, isAuthenticated }: HeaderProps) {
                 <span className="hidden sm:block text-sm text-gray-600">
                   Bonjour, <span className="font-medium text-[#232946]">{userName}</span>
                 </span>
-                <form action={async () => {
-                  'use server'
-                  await signOut({ redirectTo: '/' })
-                }}>
+                <form action={handleSignOut}>
                   <Button variant="ghost" size="sm">
                     <Icon name="logout" size={18} />
                     <span className="hidden sm:inline">Déconnexion</span>

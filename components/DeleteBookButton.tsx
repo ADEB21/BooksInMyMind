@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import IconButton from '@/components/atoms/IconButton'
 
 export default function DeleteBookButton({ bookId }: { bookId: string }) {
   const router = useRouter()
@@ -31,31 +32,36 @@ export default function DeleteBookButton({ bookId }: { bookId: string }) {
 
   if (!showConfirm) {
     return (
-      <button
+      <IconButton
+        variant="danger"
+        size="sm"
+        icon="trash"
         onClick={() => setShowConfirm(true)}
-        className="px-6 py-3 border border-red-300 text-red-600 rounded-lg hover:bg-red-50 font-medium transition"
       >
         Supprimer
-      </button>
+      </IconButton>
     )
   }
 
   return (
     <div className="flex gap-2">
-      <button
+      <IconButton
+        variant="danger"
+        size="sm"
         onClick={handleDelete}
         disabled={deleting}
-        className="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium transition disabled:opacity-50"
+        className="bg-red-600 text-white hover:bg-red-700 border-0"
       >
         {deleting ? 'Suppression...' : 'Confirmer'}
-      </button>
-      <button
+      </IconButton>
+      <IconButton
+        variant="secondary"
+        size="sm"
         onClick={() => setShowConfirm(false)}
         disabled={deleting}
-        className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium transition"
       >
         Annuler
-      </button>
+      </IconButton>
     </div>
   )
 }

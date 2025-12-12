@@ -2,10 +2,9 @@ import { auth } from '@/auth'
 import { redirect } from 'next/navigation'
 import { prisma } from '@/lib/prisma'
 import Link from 'next/link'
-import Header from '@/components/organisms/Header'
 import StatCard from '@/components/molecules/StatCard'
 import BookCard from '@/components/molecules/BookCard'
-import Button from '@/components/atoms/Button'
+import IconButton from '@/components/atoms/IconButton'
 import Icon from '@/components/atoms/Icon'
 import SearchBar from '@/components/molecules/SearchBar'
 
@@ -31,13 +30,7 @@ export default async function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#FAF6F0]">
-      <Header 
-        userName={session.user.name || undefined} 
-        isAuthenticated={true} 
-      />
-
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Welcome Section */}
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-[#232946] mb-2">
@@ -75,13 +68,12 @@ export default async function DashboardPage() {
         {/* Search & Filter */}
         <div className="mb-6 flex flex-col sm:flex-row gap-4 items-center justify-between">
           <div className="w-full sm:w-96">
-            <SearchBar placeholder="Rechercher un livre..." />
+            {/* <SearchBar placeholder="Rechercher un livre..." /> */}
           </div>
           <Link href="/books/new">
-            <Button size="lg">
-              <Icon name="plus" size={20} />
+            <IconButton size="lg" icon="plus">
               Ajouter un livre
-            </Button> 
+            </IconButton> 
           </Link>
         </div>
 
@@ -98,10 +90,9 @@ export default async function DashboardPage() {
               Commencez votre voyage littéraire en ajoutant votre premier livre
             </p>
             <Link href="/books/new">
-              <Button size="lg">
-                <Icon name="plus" size={20} />
+              <IconButton size="lg" icon="plus">
                 Ajouter mon premier livre
-              </Button>
+              </IconButton>
             </Link>
           </div>
         ) : (
@@ -119,7 +110,6 @@ export default async function DashboardPage() {
             ))}
           </div>
         )}
-      </main>
     </div>
   )
 }

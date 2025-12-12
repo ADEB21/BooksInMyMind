@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { use } from 'react'
-import Button from '@/components/atoms/Button'
+import IconButton from '@/components/atoms/IconButton'
 import Input from '@/components/atoms/Input'
 import Card from '@/components/atoms/Card'
 import Icon from '@/components/atoms/Icon'
@@ -226,24 +226,24 @@ export default function EditBookPage({
             </div>
 
             <div className="flex flex-col sm:flex-row gap-4 pt-6">
-              <Button
+              <IconButton
                 type="submit"
                 disabled={loading}
                 fullWidth
                 size="lg"
+                icon="edit"
               >
-                <Icon name="edit" size={20} />
                 {loading ? 'Modification...' : 'Enregistrer les modifications'}
-              </Button>
+              </IconButton>
               <Link href={`/books/${id}`} className="sm:w-auto">
-                <Button
+                <IconButton
                   type="button"
                   variant="secondary"
                   fullWidth
                   size="lg"
                 >
                   Annuler
-                </Button>
+                </IconButton>
               </Link>
             </div>
           </form>

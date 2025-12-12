@@ -1,7 +1,6 @@
 import Link from "next/link"
 import { auth } from "@/auth"
-import Header from "@/components/organisms/Header"
-import Button from "@/components/atoms/Button"
+import IconButton from "@/components/atoms/IconButton"
 import Card from "@/components/atoms/Card"
 import Icon from "@/components/atoms/Icon"
 
@@ -9,14 +8,9 @@ export default async function Home() {
   const session = await auth()
 
   return (
-    <div className="min-h-screen bg-[#FAF6F0]">
-      <Header 
-        userName={session?.user?.name || undefined} 
-        isAuthenticated={!!session} 
-      />
-
+    <>
       {/* Hero Section */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="py-20 lg:py-32 text-center">
           <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-[#232946] mb-6 leading-tight">
             Votre voyage de lecture,
@@ -30,22 +24,21 @@ export default async function Home() {
 
           {session ? (
             <Link href="/dashboard">
-              <Button size="lg">
-                <Icon name="book" size={20} />
+              <IconButton size="lg" icon="book">
                 Accéder à ma bibliothèque
-              </Button>
+              </IconButton>
             </Link>
           ) : (
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link href="/register">
-                <Button size="lg" fullWidth>
+                <IconButton size="lg" fullWidth>
                   Commencer gratuitement
-                </Button>
+                </IconButton>
               </Link>
               <Link href="/login">
-                <Button size="lg" variant="secondary" fullWidth>
+                <IconButton size="lg" variant="secondary" fullWidth>
                   Se connecter
-                </Button>
+                </IconButton>
               </Link>
             </div>
           )}
@@ -91,16 +84,7 @@ export default async function Home() {
             </Card>
           </div>
         </div>
-      </main>
-
-      {/* Footer */}
-      <footer className="border-t border-[#232946]/10 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 text-center">
-          <p className="text-gray-500">
-            © 2026 BooksInMyMind - Développé par Arthur DEBRUILLE pour les amoureux de la lecture
-          </p>
-        </div>
-      </footer>
-    </div>
+      </div>
+    </>
   )
 }

@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import Button from '@/components/atoms/Button'
+import IconButton from '@/components/atoms/IconButton'
 import Input from '@/components/atoms/Input'
 import Card from '@/components/atoms/Card'
 import Icon from '@/components/atoms/Icon'
@@ -123,14 +123,14 @@ export default function RegisterPage() {
               disabled={loading}
             />
 
-            <Button
+            <IconButton
               type="submit"
               disabled={loading}
               fullWidth
               size="lg"
             >
               {loading ? 'Inscription...' : 'S\'inscrire'}
-            </Button>
+            </IconButton>
           </form>
 
           <div className="mt-6 pt-6 border-t border-[#232946]/10">

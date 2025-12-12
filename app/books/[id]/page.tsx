@@ -4,7 +4,7 @@ import { prisma } from '@/lib/prisma'
 import Link from 'next/link'
 import DeleteBookButton from '@/components/DeleteBookButton'
 import Card from '@/components/atoms/Card'
-import Button from '@/components/atoms/Button'
+import IconButton from '@/components/atoms/IconButton'
 import Badge from '@/components/atoms/Badge'
 import Icon from '@/components/atoms/Icon'
 
@@ -50,10 +50,9 @@ export default async function BookDetailPage({
             </Link>
             <div className="flex items-center gap-3">
               <Link href={`/books/${id}/edit`}>
-                <Button variant="secondary" size="sm">
-                  <Icon name="edit" size={16} />
+                <IconButton variant="secondary" size="sm" icon="edit">
                   Modifier
-                </Button>
+                </IconButton>
               </Link>
               <DeleteBookButton bookId={id} />
             </div>
