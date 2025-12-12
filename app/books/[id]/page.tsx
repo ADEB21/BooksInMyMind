@@ -1,42 +1,46 @@
-import { auth } from '@/auth'
-import { redirect, notFound } from 'next/navigation'
-import { prisma } from '@/lib/prisma'
-import Link from 'next/link'
-import DeleteBookButton from '@/components/DeleteBookButton'
-import Card from '@/components/atoms/Card'
-import IconButton from '@/components/atoms/IconButton'
-import Badge from '@/components/atoms/Badge'
-import Icon from '@/components/atoms/Icon'
+import { auth } from "@/auth";
+import { redirect, notFound } from "next/navigation";
+import { prisma } from "@/lib/prisma";
+import Link from "next/link";
+import DeleteBookButton from "@/components/DeleteBookButton";
+import Card from "@/components/atoms/Card";
+import IconButton from "@/components/atoms/IconButton";
+import Badge from "@/components/atoms/Badge";
+import Icon from "@/components/atoms/Icon";
 
 export default async function BookDetailPage({
   params,
 }: {
-  params: Promise<{ id: string }>
+  params: Promise<{ id: string }>;
 }) {
-  const session = await auth()
+  const session = await auth();
   if (!session?.user) {
-    redirect('/login')
+    redirect("/login");
   }
 
-  const { id } = await params
+  const { id } = await params;
 
   const book = await prisma.book.findUnique({
     where: {
       id,
       userId: session.user.id,
     },
-  })
+  });
 
   if (!book) {
-    notFound()
+    notFound();
   }
 
-  const status = book.endDate ? 'finished' : book.startDate ? 'reading' : 'to-read'
+  const status = book.endDate
+    ? "finished"
+    : book.startDate
+    ? "reading"
+    : "to-read";
   const statusLabels = {
-    'finished': 'Terminé',
-    'reading': 'En cours',
-    'to-read': 'À lire'
-  }
+    finished: "Terminé",
+    reading: "En cours",
+    "to-read": "À lire",
+  };
 
   return (
     <div className="min-h-screen bg-[#FAF6F0]">
@@ -44,7 +48,10 @@ export default async function BookDetailPage({
       <header className="bg-white/80 backdrop-blur-lg border-b border-[#232946]/5 sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
-            <Link href="/dashboard" className="flex items-center gap-2 text-gray-600 hover:text-[#232946] transition-colors">
+            <Link
+              href="/dashboard"
+              className="flex items-center gap-2 text-gray-600 hover:text-[#232946] transition-colors"
+            >
               <Icon name="book" size={20} />
               <span className="font-medium">Retour au dashboard</span>
             </Link>
@@ -79,7 +86,15 @@ export default async function BookDetailPage({
             {/* Info */}
             <div className="flex-1 space-y-6">
               <div>
-                <Badge variant={status === 'finished' ? 'success' : status === 'reading' ? 'gold' : 'default'}>
+                <Badge
+                  variant={
+                    status === "finished"
+                      ? "success"
+                      : status === "reading"
+                      ? "gold"
+                      : "default"
+                  }
+                >
                   {statusLabels[status]}
                 </Badge>
                 <h1 className="text-4xl font-bold text-[#232946] mt-4 mb-2">
@@ -93,10 +108,14 @@ export default async function BookDetailPage({
               {book.rating && (
                 <div className="flex items-center gap-3">
                   <div className="flex text-3xl text-[#C1A15B]">
-                    {'★'.repeat(book.rating)}
-                    <span className="text-gray-300">{'★'.repeat(5 - book.rating)}</span>
+                    {"★".repeat(book.rating)}
+                    <span className="text-gray-300">
+                      {"★".repeat(5 - book.rating)}
+                    </span>
                   </div>
-                  <span className="text-lg text-gray-600 font-medium">{book.rating}/5</span>
+                  <span className="text-lg text-gray-600 font-medium">
+                    {book.rating}/5
+                  </span>
                 </div>
               )}
 
@@ -113,6 +132,22 @@ export default async function BookDetailPage({
               )}
 
               <div className="grid grid-cols-2 gap-4">
+                {book.datePublished && (
+                  <div className="bg-white rounded-lg p-4 border border-[#232946]/10">
+                    <div className="flex items-center gap-2 text-gray-500 text-sm mb-1">
+                      <Icon name="calendar" size={16} />
+                      <span>Publié le</span>
+                    </div>
+                    <p className="text-[#232946] font-semibold">
+                      {new Date(book.datePublished).toLocaleDateString('fr-FR', {
+                        day: 'numeric',
+                        month: 'long',
+                        year: 'numeric',
+                      })}
+                    </p>
+                  </div>
+                )}
+
                 {book.startDate && (
                   <div className="bg-white rounded-lg p-4 border border-[#232946]/10">
                     <div className="flex items-center gap-2 text-gray-500 text-sm mb-1">
@@ -180,5 +215,5 @@ export default async function BookDetailPage({
         </Card>
       </main>
     </div>
-  )
+  );
 }

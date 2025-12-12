@@ -106,6 +106,7 @@ export default async function DashboardPage() {
                 coverUrl={book.coverUrl || undefined}
                 rating={book.rating || undefined}
                 status={book.endDate ? 'finished' : book.startDate ? 'reading' : 'to-read'}
+                datePublished={book.datePublished || undefined}
               />
             ))}
           </div>

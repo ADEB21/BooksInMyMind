@@ -6,6 +6,7 @@ import { z } from "zod"
 const bookSchema = z.object({
   title: z.string().min(1, "Title is required"),
   author: z.string().optional(),
+  datePublished: z.string().datetime().optional(),
   coverUrl: z.string().url().optional().or(z.literal("")),
   rating: z.number().min(1).max(5).optional(),
   comment: z.string().optional(),
@@ -60,13 +61,14 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    const { title, author, coverUrl, rating, comment, startDate, endDate } =
+    const { title, author, datePublished, coverUrl, rating, comment, startDate, endDate } =
       validatedFields.data
 
     const book = await prisma.book.create({
       data: {
         title,
         author,
+        datePublished: datePublished ? new Date(datePublished) : null,
         coverUrl: coverUrl || null,
         rating,
         comment,

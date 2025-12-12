@@ -6,6 +6,7 @@ import { z } from "zod"
 const bookUpdateSchema = z.object({
   title: z.string().min(1).optional(),
   author: z.string().optional(),
+  datePublished: z.string().datetime().optional(),
   coverUrl: z.string().url().optional().or(z.literal("")),
   rating: z.number().min(1).max(5).optional(),
   comment: z.string().optional(),
@@ -83,7 +84,7 @@ export async function PUT(
       return NextResponse.json({ error: "Book not found" }, { status: 404 })
     }
 
-    const { title, author, coverUrl, rating, comment, startDate, endDate } =
+    const { title, author, datePublished, coverUrl, rating, comment, startDate, endDate } =
       validatedFields.data
 
     const book = await prisma.book.update({
@@ -91,6 +92,9 @@ export async function PUT(
       data: {
         ...(title && { title }),
         ...(author !== undefined && { author }),
+        ...(datePublished !== undefined && {
+          datePublished: datePublished ? new Date(datePublished) : null,
+        }),
         ...(coverUrl !== undefined && { coverUrl: coverUrl || null }),
         ...(rating !== undefined && { rating }),
         ...(comment !== undefined && { comment }),

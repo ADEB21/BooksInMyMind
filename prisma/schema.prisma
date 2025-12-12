@@ -62,18 +62,19 @@ model VerificationToken {
 }
 
 model Book {
-  id          String   @id @default(cuid())
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId      String
-  title       String
-  author      String?
-  coverUrl    String?
-  rating      Int?
-  comment     String?
-  startDate   DateTime?
-  endDate     DateTime?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id             String    @id @default(cuid())
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId         String
+  title          String
+  author         String?
+  datePublished  DateTime?
+  coverUrl       String?
+  rating         Int?
+  comment        String?
+  startDate      DateTime?
+  endDate        DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
 
   @@index([userId])
 }

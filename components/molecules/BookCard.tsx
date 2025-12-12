@@ -10,6 +10,7 @@ interface BookCardProps {
   coverUrl?: string
   rating?: number
   status?: 'reading' | 'finished' | 'to-read'
+  datePublished?: Date | string
 }
 
 export default function BookCard({ 
@@ -18,7 +19,8 @@ export default function BookCard({
   author, 
   coverUrl, 
   rating,
-  status 
+  status,
+  datePublished
 }: BookCardProps) {
   const statusColors = {
     reading: 'gold',
@@ -55,6 +57,11 @@ export default function BookCard({
           </h3>
           {author && (
             <p className="text-sm text-gray-500 line-clamp-1 mb-2">{author}</p>
+          )}
+          {datePublished && (
+            <p className="text-xs text-gray-400 mb-2">
+              {new Date(datePublished).getFullYear()}
+            </p>
           )}
           {rating && (
             <div className="flex items-center gap-1 text-[#C1A15B]">
