@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Button from "@/components/atoms/Button";
@@ -8,21 +8,67 @@ import Input from "@/components/atoms/Input";
 import Card from "@/components/atoms/Card";
 import Icon from "@/components/atoms/Icon";
 import Textarea from "@/components/atoms/Textarea";
+import IconButton from "@/components/atoms/IconButton";
 
-export default function NewBookForm() {
+interface BookFormProps {
+  bookId?: string;
+  mode?: "create" | "edit";
+}
+
+function BookForm({ bookId, mode = "create" }: BookFormProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [fetching, setFetching] = useState(mode === "edit");
   const [error, setError] = useState("");
 
   const [formData, setFormData] = useState({
     title: "",
     author: "",
+    datePublished: "",
     coverUrl: "",
     rating: "",
     comment: "",
     startDate: "",
     endDate: "",
   });
+
+  useEffect(() => {
+    if (mode === "edit" && bookId) {
+      const fetchBook = async () => {
+        try {
+          const response = await fetch(`/api/books/${bookId}`);
+          if (response.ok) {
+            const data = await response.json();
+            const book = data.book;
+            setFormData({
+              title: book.title || "",
+              author: book.author || "",
+              datePublished: book.datePublished
+                ? new Date(book.datePublished).toISOString().split("T")[0]
+                : "",
+              coverUrl: book.coverUrl || "",
+              rating: book.rating?.toString() || "",
+              comment: book.comment || "",
+              startDate: book.startDate
+                ? new Date(book.startDate).toISOString().split("T")[0]
+                : "",
+              endDate: book.endDate
+                ? new Date(book.endDate).toISOString().split("T")[0]
+                : "",
+            });
+          } else {
+            setError("Livre non trouvé");
+          }
+        } catch (err) {
+          setError("Erreur lors du chargement");
+        } finally {
+          setFetching(false);
+        }
+      };
+
+      fetchBook();
+    }
+  }, [mode, bookId]);
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -44,6 +90,9 @@ export default function NewBookForm() {
       const payload = {
         title: formData.title,
         ...(formData.author && { author: formData.author }),
+        ...(formData.datePublished && {
+          datePublished: new Date(formData.datePublished).toISOString(),
+        }),
         ...(formData.coverUrl && { coverUrl: formData.coverUrl }),
         ...(formData.rating && { rating: parseInt(formData.rating) }),
         ...(formData.comment && { comment: formData.comment }),
@@ -55,8 +104,11 @@ export default function NewBookForm() {
         }),
       };
 
-      const response = await fetch("/api/books", {
-        method: "POST",
+      const url = mode === "edit" ? `/api/books/${bookId}` : "/api/books";
+      const method = mode === "edit" ? "PUT" : "POST";
+
+      const response = await fetch(url, {
+        method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
@@ -64,9 +116,15 @@ export default function NewBookForm() {
       const data = await response.json();
 
       if (!response.ok) {
-        setError(data.error || "Erreur lors de l'ajout du livre");
+        setError(
+          data.error ||
+            (mode === "edit"
+              ? "Erreur lors de la modification"
+              : "Erreur lors de l'ajout du livre")
+        );
       } else {
-        router.push("/dashboard");
+        const redirectUrl = mode === "edit" ? `/books/${bookId}` : "/dashboard";
+        router.push(redirectUrl);
         router.refresh();
       }
     } catch (err) {
@@ -76,14 +134,30 @@ export default function NewBookForm() {
     }
   };
 
+  if (fetching) {
+    return (
+      <div className="min-h-screen bg-[#FAF6F0] flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-6xl mb-4">📚</div>
+          <p className="text-gray-600 text-lg">Chargement...</p>
+        </div>
+      </div>
+    );
+  }
+
+  const isEditMode = mode === "edit";
+  const cancelUrl = isEditMode ? `/books/${bookId}` : "/dashboard";
+
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="mb-8">
         <h1 className="text-4xl font-bold text-[#232946] mb-2">
-          Ajouter un livre
+          {isEditMode ? "Modifier le livre" : "Ajouter un livre"}
         </h1>
         <p className="text-gray-600">
-          Enrichissez votre bibliothèque personnelle
+          {isEditMode
+            ? "Mettez à jour les informations de votre livre"
+            : "Enrichissez votre bibliothèque personnelle"}
         </p>
       </div>
 
@@ -113,6 +187,15 @@ export default function NewBookForm() {
             value={formData.author}
             onChange={handleChange}
             placeholder="J.R.R. Tolkien"
+            disabled={loading}
+          />
+
+          <Input
+            label="Date de publication"
+            name="datePublished"
+            type="date"
+            value={formData.datePublished}
+            onChange={handleChange}
             disabled={loading}
           />
 
@@ -178,14 +261,30 @@ export default function NewBookForm() {
           </div>
 
           <div className="flex flex-col sm:flex-row gap-4 pt-6">
-            <Button type="submit" disabled={loading} fullWidth size="lg">
-              <Icon name="plus" size={20} />
-              {loading ? "Ajout en cours..." : "Ajouter le livre"}
-            </Button>
-            <Link href="/dashboard" className="sm:w-auto">
-              <Button type="button" variant="secondary" fullWidth size="lg">
+            <IconButton
+              type="submit"
+              disabled={loading}
+              fullWidth
+              size="lg"
+              icon={isEditMode ? "edit" : "plus"}
+            >
+              {loading
+                ? isEditMode
+                  ? "Modification..."
+                  : "Ajout en cours..."
+                : isEditMode
+                ? "Enregistrer les modifications"
+                : "Ajouter le livre"}
+            </IconButton>
+            <Link href={cancelUrl} className="sm:w-auto">
+              <IconButton
+                type="button"
+                variant="secondary"
+                fullWidth
+                size="lg"
+              >
                 Annuler
-              </Button>
+              </IconButton>
             </Link>
           </div>
         </form>
@@ -193,3 +292,5 @@ export default function NewBookForm() {
     </div>
   );
 }
+
+export default BookForm;

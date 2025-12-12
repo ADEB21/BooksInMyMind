@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
-import NewBookForm from "@/components/organisms/NewBookForm";
+import BookForm from "@/components/organisms/BookForm";
 
 export default async function NewBookPage() {
   const session = await auth();
@@ -9,5 +9,5 @@ export default async function NewBookPage() {
     redirect("/login");
   }
 
-  return <NewBookForm />;
+  return <BookForm mode="create" />;
 }
