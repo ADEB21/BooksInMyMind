@@ -15,17 +15,25 @@ export default async function DashboardPage() {
     redirect('/login')
   }
 
-  const books = await prisma.book.findMany({
+  const userBooks = await prisma.userBook.findMany({
     where: { userId: session.user.id },
+    include: {
+      book: {
+        include: {
+          authors: true,
+          genres: true,
+        },
+      },
+    },
     orderBy: { createdAt: 'desc' },
   })
 
   const stats = {
-    total: books.length,
-    read: books.filter((b: typeof books[0]) => b.endDate).length,
-    reading: books.filter((b: typeof books[0]) => b.startDate && !b.endDate).length,
-    avgRating: books.length > 0 
-      ? (books.reduce((acc: number, b: typeof books[0]) => acc + (b.rating || 0), 0) / books.filter((b: typeof books[0]) => b.rating).length).toFixed(1)
+    total: userBooks.length,
+    read: userBooks.filter((ub) => ub.status === 'FINISHED').length,
+    reading: userBooks.filter((ub) => ub.status === 'READING').length,
+    avgRating: userBooks.length > 0 
+      ? (userBooks.reduce((acc, ub) => acc + (ub.rating || 0), 0) / userBooks.filter((ub) => ub.rating).length).toFixed(1)
       : '0',
   }
 
@@ -70,15 +78,15 @@ export default async function DashboardPage() {
           <div className="w-full sm:w-96">
             {/* <SearchBar placeholder="Rechercher un livre..." /> */}
           </div>
-          <Link href="/books/new">
-            <IconButton size="lg" icon="plus">
-              Ajouter un livre
+          <Link href="/books">
+            <IconButton size="lg" icon="book">
+              Parcourir le catalogue
             </IconButton> 
           </Link>
         </div>
 
         {/* Books Grid */}
-        {books.length === 0 ? (
+        {userBooks.length === 0 ? (
           <div className="text-center py-20">
             <div className="w-24 h-24 mx-auto mb-6 rounded-2xl bg-[#232946] flex items-center justify-center text-[#C1A15B]">
               <Icon name="book" size={48} />
@@ -89,24 +97,25 @@ export default async function DashboardPage() {
             <p className="text-gray-600 mb-8 max-w-md mx-auto">
               Commencez votre voyage littéraire en ajoutant votre premier livre
             </p>
-            <Link href="/books/new">
-              <IconButton size="lg" icon="plus">
-                Ajouter mon premier livre
+            <Link href="/books">
+              <IconButton size="lg" icon="book">
+                Découvrir le catalogue
               </IconButton>
             </Link>
           </div>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
-            {books.map((book: typeof books[0]) => (
+            {userBooks.map((userBook) => (
               <BookCard
-                key={book.id}
-                id={book.id}
-                title={book.title}
-                author={book.author || undefined}
-                coverUrl={book.coverUrl || undefined}
-                rating={book.rating || undefined}
-                status={book.endDate ? 'finished' : book.startDate ? 'reading' : 'to-read'}
-                datePublished={book.datePublished || undefined}
+                key={userBook.id}
+                id={userBook.bookId}
+                title={userBook.book.title}
+                author={userBook.book.authors[0]?.name}
+                coverUrl={userBook.book.coverUrl || undefined}
+                rating={userBook.rating || undefined}
+                status={userBook.status}
+                datePublished={userBook.book.publicationDate || undefined}
+                genres={userBook.book.genres}
               />
             ))}
           </div>

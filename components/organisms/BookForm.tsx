@@ -23,13 +23,17 @@ function BookForm({ bookId, mode = "create" }: BookFormProps) {
 
   const [formData, setFormData] = useState({
     title: "",
-    author: "",
-    datePublished: "",
+    authors: "",
+    genres: "",
+    publicationDate: "",
     coverUrl: "",
+    summary: "",
+    status: "TO_READ",
     rating: "",
     comment: "",
     startDate: "",
     endDate: "",
+    pages: "",
   });
 
   useEffect(() => {
@@ -39,22 +43,26 @@ function BookForm({ bookId, mode = "create" }: BookFormProps) {
           const response = await fetch(`/api/books/${bookId}`);
           if (response.ok) {
             const data = await response.json();
-            const book = data.book;
+            const userBook = data.userBook;
             setFormData({
-              title: book.title || "",
-              author: book.author || "",
-              datePublished: book.datePublished
-                ? new Date(book.datePublished).toISOString().split("T")[0]
+              title: userBook.book.title || "",
+              authors: userBook.book.authors.map((a: any) => a.name).join(", ") || "",
+              genres: userBook.book.genres.map((g: any) => g.name).join(", ") || "",
+              publicationDate: userBook.book.publicationDate
+                ? new Date(userBook.book.publicationDate).toISOString().split("T")[0]
                 : "",
-              coverUrl: book.coverUrl || "",
-              rating: book.rating?.toString() || "",
-              comment: book.comment || "",
-              startDate: book.startDate
-                ? new Date(book.startDate).toISOString().split("T")[0]
+              coverUrl: userBook.book.coverUrl || "",
+              summary: userBook.book.summary || "",
+              status: userBook.status || "TO_READ",
+              rating: userBook.rating?.toString() || "",
+              comment: userBook.comment || "",
+              startDate: userBook.startDate
+                ? new Date(userBook.startDate).toISOString().split("T")[0]
                 : "",
-              endDate: book.endDate
-                ? new Date(book.endDate).toISOString().split("T")[0]
+              endDate: userBook.endDate
+                ? new Date(userBook.endDate).toISOString().split("T")[0]
                 : "",
+              pages: userBook.pages?.toString() || "",
             });
           } else {
             setError("Livre non trouvé");
@@ -87,13 +95,16 @@ function BookForm({ bookId, mode = "create" }: BookFormProps) {
     setLoading(true);
 
     try {
-      const payload = {
+      const payload: any = {
         title: formData.title,
-        ...(formData.author && { author: formData.author }),
-        ...(formData.datePublished && {
-          datePublished: new Date(formData.datePublished).toISOString(),
+        status: formData.status,
+        ...(formData.authors && { authors: formData.authors.split(",").map(a => a.trim()).filter(a => a) }),
+        ...(formData.genres && { genres: formData.genres.split(",").map(g => g.trim()).filter(g => g) }),
+        ...(formData.publicationDate && {
+          publicationDate: new Date(formData.publicationDate).toISOString(),
         }),
         ...(formData.coverUrl && { coverUrl: formData.coverUrl }),
+        ...(formData.summary && { summary: formData.summary }),
         ...(formData.rating && { rating: parseInt(formData.rating) }),
         ...(formData.comment && { comment: formData.comment }),
         ...(formData.startDate && {
@@ -102,6 +113,7 @@ function BookForm({ bookId, mode = "create" }: BookFormProps) {
         ...(formData.endDate && {
           endDate: new Date(formData.endDate).toISOString(),
         }),
+        ...(formData.pages && { pages: parseInt(formData.pages) }),
       };
 
       const url = mode === "edit" ? `/api/books/${bookId}` : "/api/books";
@@ -181,20 +193,32 @@ function BookForm({ bookId, mode = "create" }: BookFormProps) {
           />
 
           <Input
-            label="Auteur"
-            name="author"
+            label="Auteurs"
+            name="authors"
             type="text"
-            value={formData.author}
+            value={formData.authors}
             onChange={handleChange}
-            placeholder="J.R.R. Tolkien"
+            placeholder="J.R.R. Tolkien, Christopher Tolkien"
+            helperText="Séparez les auteurs par des virgules"
+            disabled={loading}
+          />
+
+          <Input
+            label="Genres"
+            name="genres"
+            type="text"
+            value={formData.genres}
+            onChange={handleChange}
+            placeholder="Fantasy, Aventure"
+            helperText="Séparez les genres par des virgules"
             disabled={loading}
           />
 
           <Input
             label="Date de publication"
-            name="datePublished"
+            name="publicationDate"
             type="date"
-            value={formData.datePublished}
+            value={formData.publicationDate}
             onChange={handleChange}
             disabled={loading}
           />
@@ -209,6 +233,34 @@ function BookForm({ bookId, mode = "create" }: BookFormProps) {
             helperText="Lien vers l'image de couverture du livre"
             disabled={loading}
           />
+
+          <Textarea
+            label="Résumé"
+            name="summary"
+            value={formData.summary}
+            onChange={handleChange}
+            rows={3}
+            placeholder="Résumé du livre..."
+            disabled={loading}
+          />
+
+          <div>
+            <label className="block text-sm font-medium text-[#1A1A1A] mb-2">
+              Statut de lecture
+            </label>
+            <select
+              name="status"
+              value={formData.status}
+              onChange={handleChange}
+              className="w-full px-4 py-3 bg-white border border-[#232946]/10 rounded-xl text-[#1A1A1A] focus:outline-none focus:ring-2 focus:ring-[#C1A15B] focus:border-transparent transition-all duration-200"
+              disabled={loading}
+            >
+              <option value="TO_READ">À lire</option>
+              <option value="READING">En cours</option>
+              <option value="FINISHED">Terminé</option>
+              <option value="ABANDONED">Abandonné</option>
+            </select>
+          </div>
 
           <div>
             <label className="block text-sm font-medium text-[#1A1A1A] mb-2">
@@ -259,6 +311,16 @@ function BookForm({ bookId, mode = "create" }: BookFormProps) {
               disabled={loading}
             />
           </div>
+
+          <Input
+            label="Nombre de pages"
+            name="pages"
+            type="number"
+            value={formData.pages}
+            onChange={handleChange}
+            placeholder="350"
+            disabled={loading}
+          />
 
           <div className="flex flex-col sm:flex-row gap-4 pt-6">
             <IconButton

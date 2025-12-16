@@ -2,16 +2,24 @@ import { NextRequest, NextResponse } from "next/server"
 import { auth } from "@/auth"
 import { prisma } from "@/lib/prisma"
 import { z } from "zod"
+import { ReadingStatus } from "@prisma/client"
 
 const bookUpdateSchema = z.object({
   title: z.string().min(1).optional(),
-  author: z.string().optional(),
-  datePublished: z.string().datetime().optional(),
+  authors: z.array(z.string()).optional(),
+  genres: z.array(z.string()).optional(),
+  publicationDate: z.string().datetime().optional(),
   coverUrl: z.string().url().optional().or(z.literal("")),
+  summary: z.string().optional(),
+  publisher: z.string().optional(),
+  language: z.string().optional(),
+  isbn: z.string().optional(),
+  status: z.enum(["TO_READ", "READING", "FINISHED", "ABANDONED"]).optional(),
   rating: z.number().min(1).max(5).optional(),
   comment: z.string().optional(),
   startDate: z.string().datetime().optional(),
   endDate: z.string().datetime().optional(),
+  pages: z.number().optional(),
 })
 
 // GET /api/books/[id] - Récupérer un livre spécifique
@@ -28,18 +36,26 @@ export async function GET(
 
     const { id } = await params
 
-    const book = await prisma.book.findUnique({
+    const userBook = await prisma.userBook.findFirst({
       where: {
         id,
-        userId: session.user.id, // S'assurer que le livre appartient à l'utilisateur
+        userId: session.user.id,
+      },
+      include: {
+        book: {
+          include: {
+            authors: true,
+            genres: true,
+          },
+        },
       },
     })
 
-    if (!book) {
+    if (!userBook) {
       return NextResponse.json({ error: "Book not found" }, { status: 404 })
     }
 
-    return NextResponse.json({ book }, { status: 200 })
+    return NextResponse.json({ userBook }, { status: 200 })
   } catch (error) {
     console.error("Error fetching book:", error)
     return NextResponse.json(
@@ -72,43 +88,54 @@ export async function PUT(
       )
     }
 
-    // Vérifier que le livre existe et appartient à l'utilisateur
-    const existingBook = await prisma.book.findUnique({
+    // Vérifier que le UserBook existe et appartient à l'utilisateur
+    const existingUserBook = await prisma.userBook.findFirst({
       where: {
         id,
         userId: session.user.id,
       },
+      include: {
+        book: true,
+      },
     })
 
-    if (!existingBook) {
+    if (!existingUserBook) {
       return NextResponse.json({ error: "Book not found" }, { status: 404 })
     }
 
-    const { title, author, datePublished, coverUrl, rating, comment, startDate, endDate } =
-      validatedFields.data
+    const { 
+      status,
+      rating, 
+      comment, 
+      startDate, 
+      endDate,
+      pages
+    } = validatedFields.data
 
-    const book = await prisma.book.update({
+    // Mettre à jour uniquement les données personnelles UserBook
+    const userBookUpdateData: any = {}
+    if (status !== undefined) userBookUpdateData.status = status as ReadingStatus
+    if (rating !== undefined) userBookUpdateData.rating = rating
+    if (comment !== undefined) userBookUpdateData.comment = comment
+    if (startDate !== undefined) userBookUpdateData.startDate = startDate ? new Date(startDate) : null
+    if (endDate !== undefined) userBookUpdateData.endDate = endDate ? new Date(endDate) : null
+    if (pages !== undefined) userBookUpdateData.pages = pages
+
+    const updatedUserBook = await prisma.userBook.update({
       where: { id },
-      data: {
-        ...(title && { title }),
-        ...(author !== undefined && { author }),
-        ...(datePublished !== undefined && {
-          datePublished: datePublished ? new Date(datePublished) : null,
-        }),
-        ...(coverUrl !== undefined && { coverUrl: coverUrl || null }),
-        ...(rating !== undefined && { rating }),
-        ...(comment !== undefined && { comment }),
-        ...(startDate !== undefined && {
-          startDate: startDate ? new Date(startDate) : null,
-        }),
-        ...(endDate !== undefined && {
-          endDate: endDate ? new Date(endDate) : null,
-        }),
+      data: userBookUpdateData,
+      include: {
+        book: {
+          include: {
+            authors: true,
+            genres: true,
+          },
+        },
       },
     })
 
     return NextResponse.json(
-      { message: "Book updated successfully", book },
+      { message: "Book updated successfully", userBook: updatedUserBook },
       { status: 200 }
     )
   } catch (error) {
@@ -134,19 +161,19 @@ export async function DELETE(
 
     const { id } = await params
 
-    // Vérifier que le livre existe et appartient à l'utilisateur
-    const existingBook = await prisma.book.findUnique({
+    // Vérifier que le UserBook existe et appartient à l'utilisateur
+    const existingUserBook = await prisma.userBook.findFirst({
       where: {
         id,
         userId: session.user.id,
       },
     })
 
-    if (!existingBook) {
+    if (!existingUserBook) {
       return NextResponse.json({ error: "Book not found" }, { status: 404 })
     }
 
-    await prisma.book.delete({
+    await prisma.userBook.delete({
       where: { id },
     })
 
