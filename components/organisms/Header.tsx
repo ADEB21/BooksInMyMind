@@ -26,31 +26,26 @@ export default function Header({ userName, isAuthenticated }: HeaderProps) {
           </Link>
           
           {/* Navigation */}
-          {isAuthenticated && (
-            <nav className="hidden md:flex items-center gap-6">
-              <Link 
-                href="/books" 
-                className="flex items-center gap-2 text-[#232946] hover:text-[#C1A15B] transition-colors"
-              >
-                <Icon name="book" size={18} />
-                <span className="text-sm font-medium">Livres</span>
-              </Link>
-              <Link 
-                href="/dashboard" 
-                className="flex items-center gap-2 text-[#232946] hover:text-[#C1A15B] transition-colors"
-              >
-                <Icon name="home" size={18} />
-                <span className="text-sm font-medium">Dashboard</span>
-              </Link>
-              <Link 
-                href="/books/new" 
-                className="flex items-center gap-2 text-[#232946] hover:text-[#C1A15B] transition-colors"
-              >
-                <Icon name="plus" size={18} />
-                <span className="text-sm font-medium">Ajouter</span>
-              </Link>
-            </nav>
-          )}
+          <nav className="hidden md:flex items-center gap-6">
+            <Link 
+              href="/books" 
+              className="flex items-center gap-2 text-[#232946] hover:text-[#C1A15B] transition-colors"
+            >
+              <Icon name="book" size={18} />
+              <span className="text-sm font-medium">Catalogue</span>
+            </Link>
+            {isAuthenticated && (
+              <>
+                <Link 
+                  href="/dashboard" 
+                  className="flex items-center gap-2 text-[#232946] hover:text-[#C1A15B] transition-colors"
+                >
+                  <Icon name="star" size={18} />
+                  <span className="text-sm font-medium">Ma bibliothèque</span>
+                </Link>
+              </>
+            )}
+          </nav>
           
           {/* Actions */}
           <div className="flex items-center gap-4">

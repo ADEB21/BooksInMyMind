@@ -2,7 +2,7 @@ import { ReactNode } from 'react'
 
 interface BadgeProps {
   children: ReactNode
-  variant?: 'default' | 'gold' | 'success' | 'warning'
+  variant?: 'default' | 'gold' | 'success' | 'warning' | 'reading' | 'to-read' | 'abandoned'
   size?: 'sm' | 'md'
 }
 
@@ -16,6 +16,9 @@ export default function Badge({
     gold: 'bg-[#C1A15B]/10 text-[#C1A15B] border-[#C1A15B]/20',
     success: 'bg-green-50 text-green-700 border-green-200',
     warning: 'bg-amber-50 text-amber-700 border-amber-200',
+    reading: 'bg-blue-50 text-blue-700 border-blue-200',
+    'to-read': 'bg-purple-50 text-purple-700 border-purple-200',
+    abandoned: 'bg-gray-100 text-gray-600 border-gray-300',
   }
   
   const sizes = {
