@@ -1,33 +1,67 @@
-# 📚 Books in My Mind
+# Books in My Mind
 
-Application web de suivi de livres lus avec Next.js 16, Prisma, PostgreSQL et NextAuth v5.
+Application web de suivi de lecture construite avec Next.js (App Router), Prisma et PostgreSQL.
 
-## ✨ Fonctionnalités
+## Fonctionnalités
 
-- 🔐 **Authentification** : NextAuth v5 avec Credentials (email/password)
-- 📖 **Gestion de livres** : CRUD complet (Create, Read, Update, Delete)
-- 👤 **Multi-utilisateurs** : Chaque utilisateur a ses propres livres
-- 🗄️ **Base PostgreSQL** : Via Prisma ORM
-- 🎨 **TailwindCSS** : Styling moderne
-- 🔒 **Sécurité** : Mots de passe hashés, validation Zod, routes protégées
+- **Authentification**
+  - NextAuth v5 (Credentials email/password)
+  - Persistance via Prisma Adapter
+- **Bibliothèque personnelle**
+  - Un catalogue `Book` partagé (métadonnées: titre, auteurs, genres, ISBN, couverture, résumé...)
+  - Une relation `UserBook` par utilisateur (statut, dates, note, commentaire, pages)
+- **Statuts de lecture**
+  - `TO_READ`, `READING`, `FINISHED`, `ABANDONED`
+- **API sécurisée**
+  - Endpoints protégés par session (`auth()`)
+  - Validation des entrées via Zod
 
-## 🚀 Démarrage Rapide
+## Prérequis
 
-### 1. Générer un secret NextAuth
+- **Node.js**: voir `.nvmrc` (actuellement `24.11.1`)
+- **PostgreSQL**: en local ou via Prisma Postgres
+
+## Démarrage (développement)
+
+### 1) Installer les dépendances
 
 ```bash
-openssl rand -base64 32
+npm install
 ```
 
-Copier le résultat dans `.env` à la ligne `NEXTAUTH_SECRET=`
+### 2) Configurer les variables d’environnement
 
-### 2. Démarrer PostgreSQL
+Copier l’exemple:
+
+```bash
+cp .env.example .env
+```
+
+Puis renseigner au minimum:
+
+- `DATABASE_URL`
+- `NEXTAUTH_SECRET` (générer avec `openssl rand -base64 32`)
+- `NEXTAUTH_URL` (par défaut `http://localhost:3000`)
+
+Optionnel:
+
+- `GOOGLE_CLIENT_ID`
+- `GOOGLE_CLIENT_SECRET`
+
+### 3) Démarrer la base de données
+
+Deux options:
+
+- **PostgreSQL local**
+  - Utilise un `DATABASE_URL` du type: `postgresql://USER:PASSWORD@localhost:5432/books_db`
+- **Prisma Postgres (dev)**
+  - Démarre une instance de dev:
 
 ```bash
 npx prisma dev
 ```
 
-### 3. Configurer la base de données
+### 4) Initialiser la base
 
 ```bash
 npm run db:generate
@@ -35,101 +69,92 @@ npm run db:push
 npm run db:seed
 ```
 
-### 4. Lancer l'application
+### 5) Lancer l’application
 
 ```bash
 npm run dev
 ```
 
-Ouvrir **http://localhost:3000**
+Ouvrir `http://localhost:3000`.
 
-**Utilisateur de test :**
-- Email : `test@example.com`
-- Password : `password123`
+Compte de test (seed):
 
-## 🛠️ Stack Technique
+- **Email**: `test@example.com`
+- **Password**: `password123`
+
+## Stack
 
 - **Next.js 16** (App Router)
+- **React 19**
 - **TypeScript**
-- **Prisma** (ORM)
+- **Prisma 6**
 - **PostgreSQL**
-- **NextAuth v5** (Authentification)
-- **Zod** (Validation)
-- **bcryptjs** (Hashing)
-- **TailwindCSS** (Styling)
+- **NextAuth v5** + `@auth/prisma-adapter`
+- **Zod**
+- **TailwindCSS v4**
 
-## 📡 API Routes
+## Modèle de données (résumé)
+
+- **User**
+  - Auth + profils
+- **Book**
+  - Métadonnées globales (titre, auteurs, genres, ISBN, etc.)
+- **Author / Genre**
+  - Tables de référence reliées à `Book`
+- **UserBook**
+  - Données spécifiques utilisateur (statut, dates, note, commentaire...)
+
+## API
+
+Les routes API se trouvent dans `app/api/*`.
 
 | Route | Méthodes | Description |
-|-------|----------|-------------|
-| `/api/auth/register` | POST | Inscription utilisateur |
+|------|----------|-------------|
+| `/api/auth/register` | POST | Inscription (credentials) |
 | `/api/auth/[...nextauth]` | GET, POST | Handlers NextAuth |
-| `/api/books` | GET, POST | Liste et création de livres |
-| `/api/books/[id]` | GET, PUT, DELETE | Opérations sur un livre |
+| `/api/books` | GET, POST | Liste + création (crée `Book` + `UserBook`) |
+| `/api/books/[id]` | GET, PUT, DELETE | Opérations sur **un `UserBook`** (id de la relation utilisateur) |
 
-## 🗄️ Modèles de Données
-
-### User
-```typescript
-{
-  id: string
-  name?: string
-  email?: string
-  password?: string  // Hashé avec bcrypt
-  books: Book[]
-  createdAt: Date
-}
-```
-
-### Book
-```typescript
-{
-  id: string
-  userId: string
-  title: string
-  author?: string
-  coverUrl?: string
-  rating?: number    // 1-5
-  comment?: string
-  startDate?: Date
-  endDate?: Date
-  createdAt: Date
-  updatedAt: Date
-}
-```
-
-## 🔧 Scripts Disponibles
+## Scripts
 
 ```bash
-npm run dev          # Démarrer le serveur de dev
-npm run build        # Build de production
-npm run start        # Démarrer en production
-npm run lint         # Linter le code
+npm run dev
+npm run build
+npm run start
+npm run lint
 
-npm run db:generate  # Générer le client Prisma
-npm run db:push      # Synchroniser le schéma (dev)
-npm run db:migrate   # Créer une migration (prod)
-npm run db:seed      # Peupler avec des données de test
-npm run db:studio    # Ouvrir Prisma Studio (GUI)
+npm run db:generate
+npm run db:push
+npm run db:migrate
+npm run db:seed
+npm run db:studio
 ```
 
-## 🎯 Prochaines Étapes
+Note: le repo contient aussi `vercel-build` pour builder en CI (Prisma generate + migrate deploy + build Next).
 
-- [ ] Créer les pages frontend (login, dashboard, etc.)
-- [ ] Ajouter la pagination
-- [ ] Implémenter la recherche et les filtres
-- [ ] Ajouter des catégories/tags
-- [ ] Intégrer Google Books API pour les couvertures
-- [ ] Créer des statistiques de lecture
-- [ ] Ajouter Google OAuth
+## Déploiement (production)
 
-## 📚 Ressources
+- Variables d’environnement minimales:
+  - `DATABASE_URL`
+  - `NEXTAUTH_URL`
+  - `NEXTAUTH_SECRET`
+- Prisma:
+  - En prod, on applique les migrations via `prisma migrate deploy` (déjà inclus dans `npm run vercel-build`).
 
-- [Next.js Documentation](https://nextjs.org/docs)
-- [Prisma Documentation](https://www.prisma.io/docs)
-- [NextAuth Documentation](https://authjs.dev/)
-- [TailwindCSS Documentation](https://tailwindcss.com/docs)
+Pour un exemple de configuration, voir `.env.production.example`.
 
----
+## Structure du projet
 
-**Développé avec ❤️ et Next.js**
+- `app/`
+  - Pages (home, login, register, dashboard, books)
+  - API (`app/api/...`)
+- `prisma/`
+  - `schema.prisma`
+  - `seed.ts`
+- `auth.ts`
+  - Configuration NextAuth
+
+## Documentation
+
+- `ARCHITECTURE.md`
+
