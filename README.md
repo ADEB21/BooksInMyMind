@@ -93,6 +93,76 @@ Compte de test (seed):
 - **Zod**
 - **TailwindCSS v4**
 
+## Architecture
+
+L’application est une **Next.js App Router**.
+
+- **UI / Pages**: `app/*` (Server Components par défaut)
+- **API**: `app/api/*/route.ts` (Route Handlers)
+- **Auth**: `auth.ts` (NextAuth v5)
+- **DB**: `lib/prisma.ts` (singleton PrismaClient)
+
+### Auth & protection
+
+- **Handlers NextAuth**: `app/api/auth/[...nextauth]/route.ts` (ré-exporte `GET`/`POST` depuis `auth.ts`)
+- **Inscription**: `app/api/auth/register/route.ts` (validation Zod + hash `bcryptjs`)
+- **Protection des routes**:
+  - API: vérification de session via `auth()` au début des handlers
+  - Pages: la protection est gérée côté pages / appels API (le `middleware.ts` laisse passer les requêtes)
+
+### Accès aux données
+
+- Le modèle sépare:
+  - `Book` (métadonnées partagées)
+  - `UserBook` (données “bibliothèque” propres à l’utilisateur: statut, notes, dates, etc.)
+- Les handlers API utilisent Prisma et incluent souvent `book` + (`authors`, `genres`) pour retourner des objets complets.
+
+### Conventions API
+
+- **Validation**: Zod via `safeParse()` avec erreurs détaillées (`400`)
+- **Auth**: `401` si pas de session
+- **Accès aux ressources**: les routes `app/api/books/[id]` manipulent un **`UserBook.id`** (pas `Book.id`) pour garantir l’isolation par utilisateur
+
+## Arborescence (simplifiée)
+
+```text
+books-in-my-mind/
+  app/
+    api/
+      auth/
+        register/route.ts
+        [...nextauth]/route.ts
+      books/
+        route.ts
+        [id]/route.ts
+        [id]/add-to-library/route.ts
+    books/
+    dashboard/
+    login/
+    register/
+    layout.tsx
+    page.tsx
+    globals.css
+  components/
+    atoms/
+    molecules/
+    organisms/
+  lib/
+    prisma.ts
+    actions.ts
+  prisma/
+    schema.prisma
+    migrations/
+    seed.ts
+  public/
+  types/
+    next-auth.d.ts
+  auth.ts
+  middleware.ts
+  next.config.ts
+  package.json
+```
+
 ## Modèle de données (résumé)
 
 - **User**
@@ -153,8 +223,3 @@ Pour un exemple de configuration, voir `.env.production.example`.
   - `seed.ts`
 - `auth.ts`
   - Configuration NextAuth
-
-## Documentation
-
-- `ARCHITECTURE.md`
-
