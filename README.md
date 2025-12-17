@@ -47,15 +47,6 @@ Ouvrir **http://localhost:3000**
 - Email : `test@example.com`
 - Password : `password123`
 
-## 📖 Documentation
-
-- **[QUICKSTART.md](./QUICKSTART.md)** - Démarrage rapide en 5 étapes
-- **[SETUP.md](./SETUP.md)** - Guide de configuration complet
-- **[COMMANDS.md](./COMMANDS.md)** - Toutes les commandes disponibles
-- **[PROJECT_STRUCTURE.md](./PROJECT_STRUCTURE.md)** - Structure du projet
-- **[docs/API_EXAMPLES.md](./docs/API_EXAMPLES.md)** - Exemples d'utilisation de l'API
-- **[docs/GOOGLE_OAUTH.md](./docs/GOOGLE_OAUTH.md)** - Ajouter Google OAuth
-
 ## 🛠️ Stack Technique
 
 - **Next.js 16** (App Router)
